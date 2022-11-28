@@ -110,3 +110,38 @@ describe('[UserAPI.getLaunchIdsByUser]', () => {
     expect(res).toEqual([]);
   });
 });
+
+describe('[UserAPI.isBookedOnLaunch]', () => {
+  it('should return true if a user has booked the given trip or launch', async () => {
+    mockStore.trips.findAll.mockReturnValueOnce([{ get: () => 'heya' }]);
+
+    // check the result of the fn
+    const res = await ds.isBookedOnLaunch({ launchId: 1 });
+    expect(res).toBeTruthy();
+
+    // make sure store is called properly
+    expect(mockStore.trips.findAll).toBeCalledWith({
+      where: { launchId: 1, userId: 1 },
+    });
+  });
+
+  it('should return false if the context object is null ', async () => {
+
+    ds.initialize({ context: null });
+
+    // check the result of the fn
+    const res = await ds.isBookedOnLaunch({ launchId: 1 });
+    expect(res).toBeFalsy();
+    ds.initialize({ context: { user: { id: 1, email: 'a@a.a' } } });
+  });
+
+  it('should return false if the user object in context is null ', async () => {
+
+    ds.initialize({ context: { user: null } });
+
+    // check the result of the fn
+    const res = await ds.isBookedOnLaunch({ launchId: 1 });
+    expect(res).toBeFalsy();
+    ds.initialize({ context: { user: { id: 1, email: 'a@a.a' } } });
+  });
+});

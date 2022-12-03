@@ -11,6 +11,84 @@ describe('Login Page', () => {
   it('renders login page', async () => {
     renderApollo(<Login />);
   });
+  it('verifying whether clicking login on empty email field does not update cache', async () => {
+    expect(isLoggedInVar()).toBeFalsy();
+
+    const mocks = [
+      {
+        request: {query: LOGIN_USER, variables: {email: ''}},
+        result: {data : {login: null}},
+      },
+    ];
+
+    const {getByText, getByTestId} = await renderApollo(<Login />, {
+      mocks,
+      cache,
+    });
+
+    // empty email field
+    fireEvent.change(getByTestId('login-input'), {
+      target: {value: ''},
+    });
+    fireEvent.click(getByText(/log in/i));
+    expect(isLoggedInVar()).toBeFalsy();
+
+
+
+    
+  })
+  it('Invalid Email no . in text', async () => {
+    expect(isLoggedInVar()).toBeFalsy();
+
+    const mocks = [
+      {
+        request: {query: LOGIN_USER, variables: {email: 'asish@com'}},
+        result: {data : {login: null}},
+      },
+    ];
+
+    const {getByText, getByTestId} = await renderApollo(<Login />, {
+      mocks,
+      cache,
+    });
+
+    // empty email field
+    fireEvent.change(getByTestId('login-input'), {
+      target: {value: 'asish@com'},
+    });
+    fireEvent.click(getByText(/log in/i));
+    expect(isLoggedInVar()).toBeFalsy();
+
+
+
+    
+  })
+  it('Invalid email no @', async () => {
+    expect(isLoggedInVar()).toBeFalsy();
+
+    const mocks = [
+      {
+        request: {query: LOGIN_USER, variables: {email: 'asish.com'}},
+        result: {data : {login: null}},
+      },
+    ];
+
+    const {getByText, getByTestId} = await renderApollo(<Login />, {
+      mocks,
+      cache,
+    });
+
+    // empty email field
+    fireEvent.change(getByTestId('login-input'), {
+      target: {value: 'asish.com'},
+    });
+    fireEvent.click(getByText(/log in/i));
+    expect(isLoggedInVar()).toBeFalsy();
+
+
+
+    
+  })
 
   it('fires login mutation and updates cache after done', async () => {
     expect(isLoggedInVar()).toBeFalsy();

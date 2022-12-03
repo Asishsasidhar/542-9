@@ -27,6 +27,13 @@ const mockMe = {
   trips: [mockLaunch],
 };
 
+const emptyCartMock = {
+  __typename: 'User',
+  id: 1,
+  email: 'a@a.a',
+  trips: [],
+}
+
 describe('Profile Page', () => {
   // automatically unmount and cleanup DOM after the test is finished.
   afterEach(cleanup);
@@ -44,4 +51,16 @@ describe('Profile Page', () => {
     // if the profile renders, it will have the list of missions booked
     await waitFor(() => getByText(/test mission/i));
   });
+
+  it('empty profile page', async()=> {
+    const mocks = [
+      {
+        request: { query: GET_MY_TRIPS },
+        result: { data: { me: emptyCartMock } },
+      },
+    ]
+    const { getByTestId } = renderApollo(<Profile />, { mocks });
+
+    await waitFor(()=> getByTestId('no-trps-msg'))
+  })
 });

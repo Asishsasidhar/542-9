@@ -3,7 +3,7 @@ import React from 'react';
 import { renderApollo, cleanup, fireEvent, waitFor } from '../../test-utils';
 import BookTrips, { BOOK_TRIPS } from '../book-trips';
 import { GET_LAUNCH } from '../cart-item';
-
+import {cartItemsVar, cache} from "../../cache"
 const mockLaunch = {
   __typename: 'Launch',
   id: 1,
@@ -55,5 +55,30 @@ describe('book trips', () => {
   });
 
   // >>>> TODO
-  it('correctly updates cache', () => {});
+  it('correctly updates cache', async () => {
+    let mocks = [
+      {
+        request: { query: BOOK_TRIPS, variables: { launchIds: ['1'] } },
+        result: {
+          data: {
+            bookTrips: [{ success: true, message: 'success!', launches: [] }],
+          },
+        },
+      },
+      {
+        // we need this query for refetchQueries
+        request: { query: GET_LAUNCH, variables: { launchId: '1' } },
+        result: { data: { launch: mockLaunch } },
+      },
+    ];
+    const { getByTestId } = renderApollo(
+      <BookTrips cartItems={['1']} />,
+      { mocks, addTypename: false ,cache},
+    );
+    fireEvent.click(getByTestId('book-button'));
+
+    // checking whether cartItems in cache is empty after booking all trips in cart
+    expect(cartItemsVar()).toEqual([]);
+
+  });
 });
